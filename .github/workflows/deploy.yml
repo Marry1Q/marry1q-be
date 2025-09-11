@@ -179,7 +179,7 @@ jobs:
               - AWS_S3_BUCKET=\${AWS_S3_BUCKET}
             restart: unless-stopped
             healthcheck:
-              test: [\"CMD\", \"curl\", \"-f\", \"http://localhost:8080/actuator/health\"]
+              test: [\"CMD\", \"curl\", \"-f\", \"http://localhost:8080/api/health\"]
               interval: 30s
               timeout: 10s
               retries: 3
@@ -224,7 +224,7 @@ jobs:
         
         # 헬스체크 (최대 5분 대기)
         for i in {1..30}; do
-          if curl -f http://$VM_IP:8080/actuator/health; then
+          if curl -f http://$VM_IP:8080/api/health; then
             echo "✅ Application is healthy!"
             break
           else

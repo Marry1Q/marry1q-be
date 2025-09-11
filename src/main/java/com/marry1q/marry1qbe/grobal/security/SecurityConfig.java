@@ -42,6 +42,8 @@ public class SecurityConfig {
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
                 // Actuator 헬스체크 엔드포인트는 인증 불필요
                 .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                // 커스텀 헬스체크 엔드포인트는 인증 불필요
+                .requestMatchers("/api/health").permitAll()
                 // 공개 청첩장 조회는 인증 불필요
                 .requestMatchers("/api/invitations/public/**").permitAll()
                 // 인증 필요한 auth 엔드포인트
