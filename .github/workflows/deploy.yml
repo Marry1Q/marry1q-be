@@ -190,7 +190,7 @@ services:
 networks:
   marry1q-network:
     driver: bridge
-EOF"
+EOF
         
         # VM에서 컨테이너 재시작
         gcloud compute ssh ${{ env.VM_INSTANCE_NAME }} \
