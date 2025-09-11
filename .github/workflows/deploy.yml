@@ -94,9 +94,12 @@ jobs:
           --zone=${{ env.GCP_ZONE }} \
           --project=${{ env.GCP_PROJECT_ID }} \
           --command="
-            # 기존 컨테이너 중지 및 제거
-            sudo docker compose down || true
-            sudo docker rm -f marry1q-be || true
+            # 기존 컨테이너 중지 및 제거 (존재하는 경우에만)
+            sudo docker compose down 2>/dev/null || true
+            sudo docker rm -f marry1q-be 2>/dev/null || true
+            
+            # Docker Hub 로그인
+            echo '${{ secrets.DOCKER_PASSWORD }}' | sudo docker login -u '${{ secrets.DOCKER_USERNAME }}' --password-stdin
             
             # 새로운 이미지 pull
             sudo docker pull ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}:latest
@@ -135,59 +138,59 @@ jobs:
           --zone=${{ env.GCP_ZONE }} \
           --project=${{ env.GCP_PROJECT_ID }} \
           --command="cat > docker-compose.yml << 'EOF'
-        version: '3.8'
+version: '3.8'
 
-        services:
-          marry1q-be:
-            image: \${DOCKER_REGISTRY}/\${DOCKER_IMAGE_NAME}:latest
-            container_name: marry1q-be
-            ports:
-              - \"8080:8080\"
-            environment:
-              # Database Configuration
-              - DB_HOST=\${DB_HOST}
-              - DB_PORT=\${DB_PORT}
-              - DB_NAME=\${DB_NAME}
-              - DB_USERNAME=\${DB_USERNAME}
-              - DB_PASSWORD=\${DB_PASSWORD}
-              
-              # JWT Configuration
-              - JWT_SECRET=\${JWT_SECRET}
-              - JWT_ACCESS_TOKEN_EXPIRATION=\${JWT_ACCESS_TOKEN_EXPIRATION}
-              - JWT_REFRESH_TOKEN_EXPIRATION=\${JWT_REFRESH_TOKEN_EXPIRATION}
-              
-              # External API Configuration
-              - AUTH_BACKEND_URL=\${AUTH_BACKEND_URL}
-              - AUTH_BACKEND_CLIENT_ID=\${AUTH_BACKEND_CLIENT_ID}
-              - AUTH_BACKEND_CLIENT_SECRET=\${AUTH_BACKEND_CLIENT_SECRET}
-              
-              - HANA_BANK_URL=\${HANA_BANK_URL}
-              - HANA_BANK_TIMEOUT_MS=\${HANA_BANK_TIMEOUT_MS}
-              
-              - GEMINI_API_KEY=\${GEMINI_API_KEY}
-              
-              # CORS Configuration
-              - CORS_ALLOWED_ORIGINS=\${CORS_ALLOWED_ORIGINS}
-              
-              # AWS S3 Configuration
-              - AWS_S3_ACCESS_KEY=\${AWS_S3_ACCESS_KEY}
-              - AWS_S3_SECRET_KEY=\${AWS_S3_SECRET_KEY}
-              - AWS_S3_REGION=\${AWS_S3_REGION}
-              - AWS_S3_BUCKET=\${AWS_S3_BUCKET}
-            restart: unless-stopped
-            healthcheck:
-              test: [\"CMD\", \"curl\", \"-f\", \"http://localhost:8080/actuator/health\"]
-              interval: 30s
-              timeout: 10s
-              retries: 3
-              start_period: 40s
-            networks:
-              - marry1q-network
+services:
+  marry1q-be:
+    image: \${DOCKER_REGISTRY}/\${DOCKER_IMAGE_NAME}:latest
+    container_name: marry1q-be
+    ports:
+      - \"8080:8080\"
+    environment:
+      # Database Configuration
+      - DB_HOST=\${DB_HOST}
+      - DB_PORT=\${DB_PORT}
+      - DB_NAME=\${DB_NAME}
+      - DB_USERNAME=\${DB_USERNAME}
+      - DB_PASSWORD=\${DB_PASSWORD}
+      
+      # JWT Configuration
+      - JWT_SECRET=\${JWT_SECRET}
+      - JWT_ACCESS_TOKEN_EXPIRATION=\${JWT_ACCESS_TOKEN_EXPIRATION}
+      - JWT_REFRESH_TOKEN_EXPIRATION=\${JWT_REFRESH_TOKEN_EXPIRATION}
+      
+      # External API Configuration
+      - AUTH_BACKEND_URL=\${AUTH_BACKEND_URL}
+      - AUTH_BACKEND_CLIENT_ID=\${AUTH_BACKEND_CLIENT_ID}
+      - AUTH_BACKEND_CLIENT_SECRET=\${AUTH_BACKEND_CLIENT_SECRET}
+      
+      - HANA_BANK_URL=\${HANA_BANK_URL}
+      - HANA_BANK_TIMEOUT_MS=\${HANA_BANK_TIMEOUT_MS}
+      
+      - GEMINI_API_KEY=\${GEMINI_API_KEY}
+      
+      # CORS Configuration
+      - CORS_ALLOWED_ORIGINS=\${CORS_ALLOWED_ORIGINS}
+      
+      # AWS S3 Configuration
+      - AWS_S3_ACCESS_KEY=\${AWS_S3_ACCESS_KEY}
+      - AWS_S3_SECRET_KEY=\${AWS_S3_SECRET_KEY}
+      - AWS_S3_REGION=\${AWS_S3_REGION}
+      - AWS_S3_BUCKET=\${AWS_S3_BUCKET}
+    restart: unless-stopped
+    healthcheck:
+      test: [\"CMD\", \"curl\", \"-f\", \"http://localhost:8080/actuator/health\"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - marry1q-network
 
-        networks:
-          marry1q-network:
-            driver: bridge
-        EOF"
+networks:
+  marry1q-network:
+    driver: bridge
+EOF"
         
         # VM에서 컨테이너 재시작
         gcloud compute ssh ${{ env.VM_INSTANCE_NAME }} \
