@@ -224,8 +224,11 @@ jobs:
         
         # 헬스체크 (최대 5분 대기)
         for i in {1..30}; do
-          if curl -f http://$VM_IP:8080/api/health; then
+          echo "🔍 Health check attempt $i/30..."
+          if curl -f -s -H "accept: */*" http://$VM_IP:8080/api/health; then
             echo "✅ Application is healthy!"
+            echo "📊 Health check response:"
+            curl -s -H "accept: */*" http://$VM_IP:8080/api/health | jq . || curl -s -H "accept: */*" http://$VM_IP:8080/api/health
             break
           else
             echo "⏳ Waiting for application to start... ($i/30)"
