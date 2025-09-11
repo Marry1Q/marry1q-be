@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -24,6 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomUserDetailsService customUserDetailsService;
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -64,6 +66,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        return pathMatcher.match("/api/auth/signup", path)
+            || pathMatcher.match("/api/auth/login", path)
+            || pathMatcher.match("/api/auth/refresh", path)
+            || pathMatcher.match("/api/health", path)
+            || pathMatcher.match("/actuator/**", path)
+            || pathMatcher.match("/swagger-ui/**", path)
+            || pathMatcher.match("/swagger-ui.html", path)
+            || pathMatcher.match("/api-docs/**", path)
+            || pathMatcher.match("/v3/api-docs/**", path)
+            || pathMatcher.match("/swagger-resources/**", path)
+            || pathMatcher.match("/webjars/**", path)
+            || pathMatcher.match("/api/invitations/public/**", path);
     }
 
     private String getJwtFromRequest(HttpServletRequest request) {
