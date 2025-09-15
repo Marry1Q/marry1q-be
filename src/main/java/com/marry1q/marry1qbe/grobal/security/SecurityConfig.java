@@ -75,7 +75,7 @@ public class SecurityConfig {
         
         // 환경변수에서 허용된 오리진들을 가져와서 설정
         String[] allowedOrigins = corsAllowedOrigins.split(",");
-        configuration.setAllowedOriginPatterns(Arrays.asList(allowedOrigins));
+        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins));
         
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
