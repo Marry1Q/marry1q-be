@@ -126,11 +126,12 @@ public class TransferService {
      * @param bankTranId 거래고유번호 (출금이체와 입금이체를 연결하는 키)
      * @param reqClientNum 요청고객번호 (입금받을 계좌번호와 동일해야 함)
      * @param description 거래 설명 (입금 통장에 표시될 메모)
+     * @param bankCodeStd 입금받을 계좌의 은행코드 (프론트에서 전달받은 값)
      * @return auth-backend 입금이체 API 호출용 요청 본문
      */
     public Map<String, Object> createCommonDepositRequestBody(
             String accountNum, String accountHolderName, String amount,
-            String bankTranId, String reqClientNum, String description) {
+            String bankTranId, String reqClientNum, String description, String bankCodeStd) {
         
         Map<String, Object> requestBody = new HashMap<>();
         
@@ -139,7 +140,7 @@ public class TransferService {
         requestBody.put("tranDtime", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));  // 거래일시
         requestBody.put("tranNo", "00001");  // 거래번호 (기본값: 00001)
         requestBody.put("bankTranId", bankTranId);  // 거래고유번호
-        requestBody.put("bankCodeStd", "081");  // 은행 표준코드 (하나은행: 081)
+        requestBody.put("bankCodeStd", bankCodeStd);  // 은행 표준코드 (프론트에서 전달받은 값)
         
         // ===== 입금 계좌 정보 (돈을 받을 계좌) =====
         requestBody.put("accountNum", accountNum);  // 입금받을 계좌번호

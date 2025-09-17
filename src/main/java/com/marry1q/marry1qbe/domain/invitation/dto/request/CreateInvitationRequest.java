@@ -40,6 +40,12 @@ public class CreateInvitationRequest {
     @Schema(description = "결혼식장 주소", example = "서울시 강남구 테헤란로 123")
     private String venueAddress;
     
+    @Schema(description = "결혼식장 위도", example = "37.5561010650993")
+    private Double venueLatitude;
+    
+    @Schema(description = "결혼식장 경도", example = "126.628731548188")
+    private Double venueLongitude;
+    
     @Schema(description = "마음 전할 곳 메시지", example = "마음만 받겠습니다.")
     private String accountMessage;
     

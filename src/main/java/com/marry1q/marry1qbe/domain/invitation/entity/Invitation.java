@@ -41,6 +41,12 @@ public class Invitation {
     @Column(name = "venue_address", nullable = false, columnDefinition = "TEXT")
     private String venueAddress;
     
+    @Column(name = "venue_latitude")
+    private Double venueLatitude;
+    
+    @Column(name = "venue_longitude")
+    private Double venueLongitude;
+    
     @Column(name = "main_image_url", length = 500)
     private String mainImageUrl;
     
@@ -107,7 +113,7 @@ public class Invitation {
     
     // 생성자
     public Invitation(Long coupleId, String title, String invitationMessage, LocalDate weddingDate, 
-                     LocalTime weddingTime, String weddingHall, String venueAddress, String accountMessage,
+                     LocalTime weddingTime, String weddingHall, String venueAddress, Double venueLatitude, Double venueLongitude, String accountMessage,
                      String groomName, String groomPhone, String groomFatherName, String groomMotherName, String groomAccount,
                      String brideName, String bridePhone, String brideFatherName, String brideMotherName, String brideAccount,
                      String mainImageUrl) {
@@ -118,6 +124,8 @@ public class Invitation {
         this.weddingTime = weddingTime;
         this.weddingHall = weddingHall;
         this.venueAddress = venueAddress;
+        this.venueLatitude = venueLatitude;
+        this.venueLongitude = venueLongitude;
         this.mainImageUrl = mainImageUrl;
         this.accountMessage = accountMessage;
         this.groomName = groomName;
@@ -154,7 +162,7 @@ public class Invitation {
     
     // 청첩장 정보 업데이트
     public void update(String title, String invitationMessage, LocalDate weddingDate, 
-                      LocalTime weddingTime, String weddingHall, String venueAddress, String accountMessage,
+                      LocalTime weddingTime, String weddingHall, String venueAddress, Double venueLatitude, Double venueLongitude, String accountMessage,
                       String groomName, String groomPhone, String groomFatherName, String groomMotherName, String groomAccount,
                       String brideName, String bridePhone, String brideFatherName, String brideMotherName, String brideAccount,
                       String mainImageUrl) {
@@ -164,6 +172,8 @@ public class Invitation {
         this.weddingTime = weddingTime;
         this.weddingHall = weddingHall;
         this.venueAddress = venueAddress;
+        this.venueLatitude = venueLatitude;
+        this.venueLongitude = venueLongitude;
         this.mainImageUrl = mainImageUrl;
         this.accountMessage = accountMessage;
         this.groomName = groomName;

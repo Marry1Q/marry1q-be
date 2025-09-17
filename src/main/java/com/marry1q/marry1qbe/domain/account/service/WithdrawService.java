@@ -218,7 +218,8 @@ public class WithdrawService {
                 request.getAmount().toString(),  // 입금 금액
                 bankTranId,  // 거래 고유 ID
                 request.getDepositAccountNumber(),  // 요청고객번호 (개인 계좌번호와 동일해야 함)
-                request.getDepositDescription() != null ? request.getDepositDescription() : "모임통장에서 이체"  // 입금 통장 메모
+                request.getDepositDescription() != null ? request.getDepositDescription() : "모임통장에서 이체",  // 입금 통장 메모
+                request.getDepositBankCode()  // 프론트에서 받은 입금받을 계좌의 은행코드
             );
             
             // auth-backend 입금이체 API 호출

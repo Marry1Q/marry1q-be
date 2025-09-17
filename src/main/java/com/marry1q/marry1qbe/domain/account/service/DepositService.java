@@ -185,7 +185,8 @@ public class DepositService {
                 request.getAmount().toString(),  // 입금 금액
                 bankTranId,  // 거래 고유 ID
                 coupleAccountNumber,  // 요청고객번호 (모임통장 계좌번호와 동일)
-                request.getDepositDescription() != null ? request.getDepositDescription() : "모임통장 입금"  // 입금 통장 메모
+                request.getDepositDescription() != null ? request.getDepositDescription() : "모임통장 입금",  // 입금 통장 메모
+                "081"  // 모임통장은 하나은행 고정
             );
             
             // auth-backend 입금이체 API 호출

@@ -126,11 +126,34 @@ public class InvitationController {
                 required = false
             ) @RequestParam(value = "mainImage", required = false) MultipartFile mainImage) {
         
+        log.info("=== 청첩장 생성 요청 시작 ===");
+        log.info("요청 JSON 길이: {} characters", requestJson.length());
+        log.info("메인 이미지 파일: {}", mainImage != null ? "존재 (크기: " + mainImage.getSize() + " bytes)" : "없음");
+        
         // JSON 문자열을 객체로 파싱
         CreateInvitationRequest request;
         try {
             request = objectMapper.readValue(requestJson, CreateInvitationRequest.class);
+            log.info("JSON 파싱 성공");
+            log.info("파싱된 청첩장 데이터:");
+            log.info("  - 제목: {}", request.getTitle());
+            log.info("  - 결혼일: {}", request.getWeddingDate());
+            log.info("  - 결혼시간: {}", request.getWeddingTime());
+            log.info("  - 결혼식장: {}", request.getWeddingHall());
+            log.info("  - 주소: {}", request.getVenueAddress());
+            log.info("  - 위도: {}", request.getVenueLatitude());
+            log.info("  - 경도: {}", request.getVenueLongitude());
+            log.info("  - 신랑: {}", request.getGroomName());
+            log.info("  - 신부: {}", request.getBrideName());
+            log.info("  - 신랑 부: {}", request.getGroomFatherName());
+            log.info("  - 신랑 모: {}", request.getGroomMotherName());
+            log.info("  - 신부 부: {}", request.getBrideFatherName());
+            log.info("  - 신부 모: {}", request.getBrideMotherName());
+            log.info("  - 초대 메시지: {}", request.getInvitationMessage());
+            log.info("  - 계좌 메시지: {}", request.getAccountMessage());
         } catch (Exception e) {
+            log.error("JSON 파싱 실패: {}", e.getMessage());
+            log.error("요청 JSON 내용: {}", requestJson);
             return CustomApiResponse.error("INVALID_REQUEST_FORMAT", "청첩장 정보 형식이 올바르지 않습니다: " + e.getMessage());
         }
         
@@ -144,6 +167,11 @@ public class InvitationController {
         }
         
         InvitationResponse invitation = invitationService.createInvitationWithImage(request, mainImage);
+        
+        log.info("청첩장 생성 완료 - invitationId: {}, coupleId: {}", 
+                invitation.getInvitationId(), invitation.getCoupleId());
+        log.info("=== 청첩장 생성 요청 종료 ===");
+        
         return CustomApiResponse.success(invitation, "청첩장이 생성되었습니다.");
     }
     
@@ -234,11 +262,35 @@ public class InvitationController {
                 required = false
             ) @RequestParam(value = "mainImage", required = false) MultipartFile mainImage) {
         
+        log.info("=== 청첩장 수정 요청 시작 ===");
+        log.info("수정 대상 invitationId: {}", invitationId);
+        log.info("요청 JSON 길이: {} characters", requestJson.length());
+        log.info("메인 이미지 파일: {}", mainImage != null ? "존재 (크기: " + mainImage.getSize() + " bytes)" : "없음");
+        
         // JSON 문자열을 객체로 파싱
         UpdateInvitationRequest request;
         try {
             request = objectMapper.readValue(requestJson, UpdateInvitationRequest.class);
+            log.info("JSON 파싱 성공");
+            log.info("파싱된 청첩장 수정 데이터:");
+            log.info("  - 제목: {}", request.getTitle());
+            log.info("  - 결혼일: {}", request.getWeddingDate());
+            log.info("  - 결혼시간: {}", request.getWeddingTime());
+            log.info("  - 결혼식장: {}", request.getWeddingHall());
+            log.info("  - 주소: {}", request.getVenueAddress());
+            log.info("  - 위도: {}", request.getVenueLatitude());
+            log.info("  - 경도: {}", request.getVenueLongitude());
+            log.info("  - 신랑: {}", request.getGroomName());
+            log.info("  - 신부: {}", request.getBrideName());
+            log.info("  - 신랑 부: {}", request.getGroomFatherName());
+            log.info("  - 신랑 모: {}", request.getGroomMotherName());
+            log.info("  - 신부 부: {}", request.getBrideFatherName());
+            log.info("  - 신부 모: {}", request.getBrideMotherName());
+            log.info("  - 초대 메시지: {}", request.getInvitationMessage());
+            log.info("  - 계좌 메시지: {}", request.getAccountMessage());
         } catch (Exception e) {
+            log.error("JSON 파싱 실패: {}", e.getMessage());
+            log.error("요청 JSON 내용: {}", requestJson);
             return CustomApiResponse.error("INVALID_REQUEST_FORMAT", "청첩장 정보 형식이 올바르지 않습니다: " + e.getMessage());
         }
         
@@ -252,6 +304,11 @@ public class InvitationController {
         }
         
         InvitationResponse invitation = invitationService.updateInvitationWithImage(invitationId, request, mainImage);
+        
+        log.info("청첩장 수정 완료 - invitationId: {}, coupleId: {}", 
+                invitation.getInvitationId(), invitation.getCoupleId());
+        log.info("=== 청첩장 수정 요청 종료 ===");
+        
         return CustomApiResponse.success(invitation, "청첩장이 수정되었습니다.");
     }
     

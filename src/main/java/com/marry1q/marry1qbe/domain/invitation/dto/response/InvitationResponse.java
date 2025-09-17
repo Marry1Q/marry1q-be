@@ -38,6 +38,12 @@ public class InvitationResponse {
     @Schema(description = "결혼식장 주소")
     private String venueAddress;
     
+    @Schema(description = "결혼식장 위도")
+    private Double venueLatitude;
+    
+    @Schema(description = "결혼식장 경도")
+    private Double venueLongitude;
+    
     @Schema(description = "메인 이미지 URL")
     private String mainImageUrl;
     
@@ -98,6 +104,8 @@ public class InvitationResponse {
                 .weddingTime(invitation.getWeddingTime())
                 .weddingHall(invitation.getWeddingHall())
                 .venueAddress(invitation.getVenueAddress())
+                .venueLatitude(invitation.getVenueLatitude())
+                .venueLongitude(invitation.getVenueLongitude())
                 .mainImageUrl(invitation.getMainImageUrl())
                 .accountMessage(invitation.getAccountMessage())
                 .totalViews(invitation.getTotalViews())

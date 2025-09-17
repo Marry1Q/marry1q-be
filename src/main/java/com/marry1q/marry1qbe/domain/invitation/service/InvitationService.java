@@ -102,6 +102,8 @@ public class InvitationService {
                 request.getWeddingTime(),
                 request.getWeddingHall(),
                 request.getVenueAddress(),
+                request.getVenueLatitude(),
+                request.getVenueLongitude(),
                 request.getAccountMessage(),
                 request.getGroomName(),
                 request.getGroomPhone(),
@@ -133,10 +135,28 @@ public class InvitationService {
     
     // 청첩장 생성 (이미지 포함)
     public InvitationResponse createInvitationWithImage(CreateInvitationRequest request, MultipartFile mainImage) {
-        log.info("청첩장 생성 시작 (이미지 포함)");
+        log.info("=== InvitationService: 청첩장 생성 시작 (이미지 포함) ===");
+        log.info("요청 데이터 상세 정보:");
+        log.info("  - 제목: {}", request.getTitle());
+        log.info("  - 결혼일: {}", request.getWeddingDate());
+        log.info("  - 결혼시간: {}", request.getWeddingTime());
+        log.info("  - 결혼식장: {}", request.getWeddingHall());
+        log.info("  - 주소: {}", request.getVenueAddress());
+        log.info("  - 위도: {}", request.getVenueLatitude());
+        log.info("  - 경도: {}", request.getVenueLongitude());
+        log.info("  - 신랑: {}", request.getGroomName());
+        log.info("  - 신부: {}", request.getBrideName());
+        log.info("  - 신랑 부: {}", request.getGroomFatherName());
+        log.info("  - 신랑 모: {}", request.getGroomMotherName());
+        log.info("  - 신부 부: {}", request.getBrideFatherName());
+        log.info("  - 신부 모: {}", request.getBrideMotherName());
+        log.info("  - 초대 메시지: {}", request.getInvitationMessage());
+        log.info("  - 계좌 메시지: {}", request.getAccountMessage());
+        log.info("메인 이미지: {}", mainImage != null ? "존재 (크기: " + mainImage.getSize() + " bytes)" : "없음");
         
         // 1. 현재 사용자의 coupleId 가져오기
         Long coupleId = coupleService.getCurrentCoupleId();
+        log.info("현재 사용자 coupleId: {}", coupleId);
         
         // 2. 커플 정보 확인
         Marry1qCouple couple = coupleRepository.findByCoupleId(coupleId)
@@ -163,6 +183,8 @@ public class InvitationService {
                 request.getWeddingTime(),
                 request.getWeddingHall(),
                 request.getVenueAddress(),
+                request.getVenueLatitude(),
+                request.getVenueLongitude(),
                 request.getAccountMessage(),
                 request.getGroomName(),
                 request.getGroomPhone(),
@@ -189,6 +211,9 @@ public class InvitationService {
         
         log.info("청첩장 생성 완료 (이미지 포함) - invitationId: {}, mainImageUrl: {}", 
                  savedInvitation.getInvitationId(), mainImageUrl);
+        
+        // 특별 로깅: 사용자가 요청한 웨딩 데이터 추적
+        logWeddingDataReceived(savedInvitation, "CREATE");
         
         return InvitationResponse.from(savedInvitation);
     }
@@ -226,11 +251,40 @@ public class InvitationService {
     
     // 청첩장 수정 (이미지 포함)
     public InvitationResponse updateInvitationWithImage(Long invitationId, UpdateInvitationRequest request, MultipartFile mainImage) {
-        log.info("청첩장 수정 시작 (이미지 포함) - invitationId: {}", invitationId);
+        log.info("=== InvitationService: 청첩장 수정 시작 (이미지 포함) ===");
+        log.info("수정 대상 invitationId: {}", invitationId);
+        log.info("수정 요청 데이터 상세 정보:");
+        log.info("  - 제목: {}", request.getTitle());
+        log.info("  - 결혼일: {}", request.getWeddingDate());
+        log.info("  - 결혼시간: {}", request.getWeddingTime());
+        log.info("  - 결혼식장: {}", request.getWeddingHall());
+        log.info("  - 주소: {}", request.getVenueAddress());
+        log.info("  - 위도: {}", request.getVenueLatitude());
+        log.info("  - 경도: {}", request.getVenueLongitude());
+        log.info("  - 신랑: {}", request.getGroomName());
+        log.info("  - 신부: {}", request.getBrideName());
+        log.info("  - 신랑 부: {}", request.getGroomFatherName());
+        log.info("  - 신랑 모: {}", request.getGroomMotherName());
+        log.info("  - 신부 부: {}", request.getBrideFatherName());
+        log.info("  - 신부 모: {}", request.getBrideMotherName());
+        log.info("  - 초대 메시지: {}", request.getInvitationMessage());
+        log.info("  - 계좌 메시지: {}", request.getAccountMessage());
+        log.info("메인 이미지: {}", mainImage != null ? "존재 (크기: " + mainImage.getSize() + " bytes)" : "없음");
         
         // 1. 청첩장 조회
         Invitation invitation = invitationRepository.findById(invitationId)
                 .orElseThrow(() -> new InvitationNotFoundException("청첩장이 존재하지 않습니다."));
+        
+        log.info("기존 청첩장 정보:");
+        log.info("  - coupleId: {}", invitation.getCoupleId());
+        log.info("  - 기존 제목: {}", invitation.getTitle());
+        log.info("  - 기존 결혼일: {}", invitation.getWeddingDate());
+        log.info("  - 기존 결혼시간: {}", invitation.getWeddingTime());
+        log.info("  - 기존 결혼식장: {}", invitation.getWeddingHall());
+        log.info("  - 기존 주소: {}", invitation.getVenueAddress());
+        log.info("  - 기존 위도: {}", invitation.getVenueLatitude());
+        log.info("  - 기존 경도: {}", invitation.getVenueLongitude());
+        log.info("  - 기존 메인 이미지 URL: {}", invitation.getMainImageUrl());
         
         // 2. 기존 이미지 URL 저장 (롤백용)
         String originalImageUrl = invitation.getMainImageUrl();
@@ -256,6 +310,8 @@ public class InvitationService {
                     request.getWeddingTime(),
                     request.getWeddingHall(),
                     request.getVenueAddress(),
+                    request.getVenueLatitude(),
+                    request.getVenueLongitude(),
                     request.getAccountMessage(),
                     request.getGroomName(),
                     request.getGroomPhone(),
@@ -297,6 +353,10 @@ public class InvitationService {
             }
             
             log.info("청첩장 수정 완료 (이미지 포함) - invitationId: {}", invitationId);
+            
+            // 특별 로깅: 사용자가 요청한 웨딩 데이터 추적
+            logWeddingDataReceived(updatedInvitation, "UPDATE");
+            
             return InvitationResponse.from(updatedInvitation);
             
         } catch (Exception e) {
@@ -345,6 +405,8 @@ public class InvitationService {
                 request.getWeddingTime(),
                 request.getWeddingHall(),
                 request.getVenueAddress(),
+                request.getVenueLatitude(),
+                request.getVenueLongitude(),
                 request.getAccountMessage(),
                 request.getGroomName(),
                 request.getGroomPhone(),
@@ -493,10 +555,14 @@ public class InvitationService {
             
             // 4. 조회수 증가 (동기 처리)
             try {
+                int previousViews = invitation.getTotalViews();
                 invitation.incrementViewCount();
                 invitationRepository.save(invitation);
-                log.info("조회수 증가 성공 - invitationId: {}, 조회수: {}", 
-                        invitation.getInvitationId(), invitation.getTotalViews());
+                log.info("조회수 증가 성공 - invitationId: {}, 이전 조회수: {}, 현재 조회수: {}", 
+                        invitation.getInvitationId(), previousViews, invitation.getTotalViews());
+                
+                // 특별 로깅: 조회수 증가 시 웨딩 데이터 추적
+                logWeddingDataReceived(invitation, "VIEW_INCREMENT");
             } catch (Exception e) {
                 // 조회수 증가 실패 시 로그만 남기고 계속 진행
                 log.info("조회수 증가 실패 - invitationId: {}, error: {}", 
@@ -652,5 +718,26 @@ public class InvitationService {
         }
         
         log.info("=== 메인 이미지 삭제 프로세스 완료 - coupleId: {} ===", coupleId);
+    }
+    
+    /**
+     * 사용자가 요청한 웨딩 데이터를 특별히 추적하는 로깅 메서드
+     * venueLatitude, venueLongitude, views, weddingDate, weddingHall, weddingLocation, weddingTime 데이터를 로깅
+     */
+    private void logWeddingDataReceived(Invitation invitation, String operation) {
+        log.info("🎉 === 웨딩 데이터 수신 추적 [{}] ===", operation);
+        log.info("📊 invitationId: {}", invitation.getInvitationId());
+        log.info("📊 coupleId: {}", invitation.getCoupleId());
+        log.info("📍 venueLatitude: {}", invitation.getVenueLatitude());
+        log.info("📍 venueLongitude: {}", invitation.getVenueLongitude());
+        log.info("👀 views (totalViews): {}", invitation.getTotalViews());
+        log.info("📅 weddingDate: {}", invitation.getWeddingDate());
+        log.info("🏛️ weddingHall: {}", invitation.getWeddingHall());
+        log.info("🏛️ weddingLocation (weddingHall과 동일): {}", invitation.getWeddingHall());
+        log.info("⏰ weddingTime: {}", invitation.getWeddingTime());
+        log.info("🏠 venueAddress: {}", invitation.getVenueAddress());
+        log.info("👨 groomName: {}", invitation.getGroomName());
+        log.info("👩 brideName: {}", invitation.getBrideName());
+        log.info("🎉 === 웨딩 데이터 수신 추적 완료 [{}] ===", operation);
     }
 }
