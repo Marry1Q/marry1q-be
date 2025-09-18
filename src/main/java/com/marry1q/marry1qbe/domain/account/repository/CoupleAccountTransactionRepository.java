@@ -76,4 +76,24 @@ public interface CoupleAccountTransactionRepository extends JpaRepository<Couple
     List<CoupleAccountTransaction> findByAccountIdAndCreatedAtAfter(
             @Param("accountId") Long accountId,
             @Param("lastSyncedAt") java.time.LocalDateTime lastSyncedAt);
+    
+    /**
+     * 안심계좌 입금 내역 조회 (페이징 지원)
+     */
+    Page<CoupleAccountTransaction> findByAccountIdAndIsSafeAccountDepositTrueOrderByTransactionDateDescTransactionTimeDesc(
+            Long accountId, Pageable pageable);
+    
+    /**
+     * 안심계좌 입금 내역 조회 (날짜 범위 포함, 페이징 지원)
+     */
+    @Query("SELECT t FROM CoupleAccountTransaction t WHERE t.accountId = :accountId " +
+           "AND t.isSafeAccountDeposit = true " +
+           "AND (:startDate IS NULL OR t.transactionDate >= :startDate) " +
+           "AND (:endDate IS NULL OR t.transactionDate <= :endDate) " +
+           "ORDER BY t.transactionDate DESC, t.transactionTime DESC")
+    Page<CoupleAccountTransaction> findByAccountIdAndIsSafeAccountDepositTrueAndTransactionDateBetween(
+            @Param("accountId") Long accountId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            Pageable pageable);
 }
