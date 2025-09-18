@@ -100,6 +100,10 @@ public class Invitation {
     @Column(name = "bride_account", length = 100)
     private String brideAccount;
     
+    // 모임통장 정보
+    @Column(name = "meeting_account_info", length = 255)
+    private String meetingAccountInfo;
+    
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -116,7 +120,7 @@ public class Invitation {
                      LocalTime weddingTime, String weddingHall, String venueAddress, Double venueLatitude, Double venueLongitude, String accountMessage,
                      String groomName, String groomPhone, String groomFatherName, String groomMotherName, String groomAccount,
                      String brideName, String bridePhone, String brideFatherName, String brideMotherName, String brideAccount,
-                     String mainImageUrl) {
+                     String mainImageUrl, String meetingAccountInfo) {
         this.coupleId = coupleId;
         this.title = title;
         this.invitationMessage = invitationMessage;
@@ -138,6 +142,7 @@ public class Invitation {
         this.brideFatherName = brideFatherName;
         this.brideMotherName = brideMotherName;
         this.brideAccount = brideAccount;
+        this.meetingAccountInfo = meetingAccountInfo;
     }
     
     // 대표 청첩장 설정 메서드
@@ -165,7 +170,7 @@ public class Invitation {
                       LocalTime weddingTime, String weddingHall, String venueAddress, Double venueLatitude, Double venueLongitude, String accountMessage,
                       String groomName, String groomPhone, String groomFatherName, String groomMotherName, String groomAccount,
                       String brideName, String bridePhone, String brideFatherName, String brideMotherName, String brideAccount,
-                      String mainImageUrl) {
+                      String mainImageUrl, String meetingAccountInfo) {
         this.title = title;
         this.invitationMessage = invitationMessage;
         this.weddingDate = weddingDate;
@@ -186,5 +191,6 @@ public class Invitation {
         this.brideFatherName = brideFatherName;
         this.brideMotherName = brideMotherName;
         this.brideAccount = brideAccount;
+        this.meetingAccountInfo = meetingAccountInfo;
     }
 }

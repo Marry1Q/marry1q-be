@@ -42,4 +42,7 @@ public class AccountInfoResponse {
     
     @Schema(description = "활성화 여부", example = "true")
     private Boolean isActive;
+    
+    @Schema(description = "안심계좌번호", example = "11023232-2323")
+    private String safeAccountNumber;
 }

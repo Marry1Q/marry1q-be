@@ -5,6 +5,8 @@ import com.marry1q.marry1qbe.domain.couple.repository.CoupleRepository;
 import com.marry1q.marry1qbe.domain.couple.service.CoupleService;
 import com.marry1q.marry1qbe.domain.customer.entity.Customer;
 import com.marry1q.marry1qbe.domain.customer.repository.CustomerRepository;
+import com.marry1q.marry1qbe.domain.account.service.AccountService;
+import com.marry1q.marry1qbe.domain.account.dto.response.AccountInfoResponse;
 import com.marry1q.marry1qbe.domain.invitation.dto.request.CreateInvitationRequest;
 import com.marry1q.marry1qbe.domain.invitation.dto.request.UpdateInvitationRequest;
 import com.marry1q.marry1qbe.domain.invitation.dto.response.InvitationResponse;
@@ -39,6 +41,7 @@ public class InvitationService {
     private final CustomerRepository customerRepository;
     private final S3Service s3Service;
     private final CoupleService coupleService;
+    private final AccountService accountService;
     
     // 청첩장 목록 조회 (userSeqNo로)
     @Transactional(readOnly = true)
@@ -58,7 +61,7 @@ public class InvitationService {
         List<Invitation> invitations = invitationRepository.findByCoupleIdOrderByUpdatedAtDesc(coupleId);
         
         List<InvitationResponse> responses = invitations.stream()
-                .map(InvitationResponse::from)
+                .map(this::createInvitationResponseWithMeetingAccount)
                 .collect(Collectors.toList());
         
         log.info("청첩장 목록 조회 완료 - userSeqNo: {}, coupleId: {}, 개수: {}", userSeqNo, coupleId, responses.size());
@@ -74,7 +77,7 @@ public class InvitationService {
         List<Invitation> invitations = invitationRepository.findByCoupleIdOrderByUpdatedAtDesc(coupleId);
         
         List<InvitationResponse> responses = invitations.stream()
-                .map(InvitationResponse::from)
+                .map(this::createInvitationResponseWithMeetingAccount)
                 .collect(Collectors.toList());
         
         log.info("청첩장 목록 조회 완료 - coupleId: {}, 개수: {}", coupleId, responses.size());
@@ -115,7 +118,8 @@ public class InvitationService {
                 request.getBrideFatherName(),
                 request.getBrideMotherName(),
                 request.getBrideAccount(),
-                null // mainImageUrl은 별도로 설정
+                null, // mainImageUrl은 별도로 설정
+                null // meetingAccountInfo는 별도로 설정
         );
         
         // 4. 첫 번째 청첩장이면 대표 청첩장으로 설정
@@ -196,7 +200,8 @@ public class InvitationService {
                 request.getBrideFatherName(),
                 request.getBrideMotherName(),
                 request.getBrideAccount(),
-                mainImageUrl
+                mainImageUrl,
+                null // meetingAccountInfo는 별도로 설정
         );
         
         // 5. 첫 번째 청첩장이면 대표 청첩장으로 설정
@@ -246,7 +251,7 @@ public class InvitationService {
         
         log.info("청첩장 상세 조회 완료 - invitationId: {}", invitationId);
         
-        return InvitationResponse.from(invitation);
+        return createInvitationResponseWithMeetingAccount(invitation);
     }
     
     // 청첩장 수정 (이미지 포함)
@@ -323,7 +328,8 @@ public class InvitationService {
                     request.getBrideFatherName(),
                     request.getBrideMotherName(),
                     request.getBrideAccount(),
-                    newImageUrl
+                    newImageUrl,
+                    invitation.getMeetingAccountInfo() // 기존 값 유지
             );
             
             Invitation updatedInvitation = invitationRepository.save(invitation);
@@ -418,7 +424,8 @@ public class InvitationService {
                 request.getBrideFatherName(),
                 request.getBrideMotherName(),
                 request.getBrideAccount(),
-                request.getMainImageUrl()
+                request.getMainImageUrl(),
+                invitation.getMeetingAccountInfo() // 기존 값 유지
         );
         
         Invitation updatedInvitation = invitationRepository.save(invitation);
@@ -572,7 +579,7 @@ public class InvitationService {
             log.info("공개 청첩장 조회 성공 - coupleSlug: {}, invitationId: {}", 
                     coupleSlug, invitation.getInvitationId());
             
-            return InvitationResponse.from(invitation);
+            return createInvitationResponseWithMeetingAccount(invitation);
             
         } catch (Exception e) {
             log.info("공개 청첩장 조회 실패 - coupleSlug: {}, error: {}", coupleSlug, e.getMessage());
@@ -718,6 +725,16 @@ public class InvitationService {
         }
         
         log.info("=== 메인 이미지 삭제 프로세스 완료 - coupleId: {} ===", coupleId);
+    }
+    
+    /**
+     * 모임통장 정보를 포함한 청첩장 응답 생성
+     */
+    private InvitationResponse createInvitationResponseWithMeetingAccount(Invitation invitation) {
+        // DB에 저장된 meetingAccountInfo만 사용 (트랜잭션 문제 방지)
+        String meetingAccountInfo = invitation.getMeetingAccountInfo();
+        
+        return InvitationResponse.fromWithMeetingAccount(invitation, meetingAccountInfo);
     }
     
     /**

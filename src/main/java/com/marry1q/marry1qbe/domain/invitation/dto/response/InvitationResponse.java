@@ -94,6 +94,9 @@ public class InvitationResponse {
     @Schema(description = "신부 계좌번호", example = "987-654-321098")
     private String brideAccount;
     
+    @Schema(description = "모임통장 정보", example = "하나 11023232-2323")
+    private String meetingAccountInfo;
+    
     public static InvitationResponse from(Invitation invitation) {
         return InvitationResponse.builder()
                 .invitationId(invitation.getInvitationId())
@@ -122,6 +125,39 @@ public class InvitationResponse {
                 .brideFatherName(invitation.getBrideFatherName())
                 .brideMotherName(invitation.getBrideMotherName())
                 .brideAccount(invitation.getBrideAccount())
+                .meetingAccountInfo(invitation.getMeetingAccountInfo())
+                .build();
+    }
+    
+    public static InvitationResponse fromWithMeetingAccount(Invitation invitation, String meetingAccountInfo) {
+        return InvitationResponse.builder()
+                .invitationId(invitation.getInvitationId())
+                .coupleId(invitation.getCoupleId())
+                .title(invitation.getTitle())
+                .invitationMessage(invitation.getInvitationMessage())
+                .weddingDate(invitation.getWeddingDate())
+                .weddingTime(invitation.getWeddingTime())
+                .weddingHall(invitation.getWeddingHall())
+                .venueAddress(invitation.getVenueAddress())
+                .venueLatitude(invitation.getVenueLatitude())
+                .venueLongitude(invitation.getVenueLongitude())
+                .mainImageUrl(invitation.getMainImageUrl())
+                .accountMessage(invitation.getAccountMessage())
+                .totalViews(invitation.getTotalViews())
+                .isRepresentative(invitation.getIsRepresentative())
+                .createdAt(invitation.getCreatedAt())
+                .updatedAt(invitation.getUpdatedAt())
+                .groomName(invitation.getGroomName())
+                .groomPhone(invitation.getGroomPhone())
+                .groomFatherName(invitation.getGroomFatherName())
+                .groomMotherName(invitation.getGroomMotherName())
+                .groomAccount(invitation.getGroomAccount())
+                .brideName(invitation.getBrideName())
+                .bridePhone(invitation.getBridePhone())
+                .brideFatherName(invitation.getBrideFatherName())
+                .brideMotherName(invitation.getBrideMotherName())
+                .brideAccount(invitation.getBrideAccount())
+                .meetingAccountInfo(meetingAccountInfo)
                 .build();
     }
 }

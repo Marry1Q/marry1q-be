@@ -452,6 +452,7 @@ public class AccountService {
                 .balance(balance)
                 .lastSyncedAt(account.getLastSyncedAt())
                 .isActive(true) // 기본값으로 설정
+                .safeAccountNumber(account.getSafeAccountNumber()) // 안심계좌번호 추가
                 .build();
     }
     

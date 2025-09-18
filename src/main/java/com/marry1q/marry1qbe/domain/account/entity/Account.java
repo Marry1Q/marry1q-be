@@ -62,6 +62,9 @@ public class Account {
     @Column(name = "last_synced_at")
     private LocalDateTime lastSyncedAt;
     
+    @Column(name = "safe_account_number", length = 50)
+    private String safeAccountNumber;
+    
     @Column(name = "plan1q_product_id")
     private Long plan1qProductId;
     
