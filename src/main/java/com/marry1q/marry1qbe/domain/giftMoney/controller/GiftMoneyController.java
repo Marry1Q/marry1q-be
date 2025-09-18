@@ -160,19 +160,14 @@ public class GiftMoneyController {
     @GetMapping("/safe-account-transactions")
     public ResponseEntity<CustomApiResponse<SafeAccountTransactionListResponse>> getSafeAccountTransactions(
             @AuthenticationPrincipal UserDetails userDetails,
-            @Parameter(description = "시작 날짜 (yyyy-MM-dd)") @RequestParam(required = false) String startDate,
-            @Parameter(description = "종료 날짜 (yyyy-MM-dd)") @RequestParam(required = false) String endDate,
             @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size) {
         
         String currentUserSeqNo = userDetails.getUsername();
         Long coupleId = coupleService.getCurrentCoupleId();
         
-        LocalDate parsedStartDate = startDate != null ? LocalDate.parse(startDate) : null;
-        LocalDate parsedEndDate = endDate != null ? LocalDate.parse(endDate) : null;
-        
         SafeAccountTransactionListResponse response = giftMoneyService.getSafeAccountTransactions(
-                coupleId, parsedStartDate, parsedEndDate, page, size);
+                coupleId, page, size);
         
         return ResponseEntity.ok(CustomApiResponse.success(response, "안심계좌 입금 내역 조회가 완료되었습니다."));
     }

@@ -297,14 +297,12 @@ public class GiftMoneyService {
     @Transactional
     public SafeAccountTransactionListResponse getSafeAccountTransactions(
             Long coupleId,
-            LocalDate startDate,
-            LocalDate endDate,
             int page,
             int size) {
         
         try {
-            log.info("안심계좌 입금 내역 조회 시작: coupleId={}, startDate={}, endDate={}, page={}, size={}", 
-                    coupleId, startDate, endDate, page, size);
+            log.info("안심계좌 입금 내역 조회 시작: coupleId={}, page={}, size={}", 
+                    coupleId, page, size);
             
             // 1. 거래내역 동기화 (동기 처리)
             accountService.syncTransactions();
@@ -317,17 +315,9 @@ public class GiftMoneyService {
             
             // 3. 안심계좌 입금 내역 조회 (페이징)
             Pageable pageable = PageRequest.of(page, size);
-            Page<com.marry1q.marry1qbe.domain.account.entity.CoupleAccountTransaction> transactionPage;
-            
-            if (startDate != null || endDate != null) {
-                // 날짜 범위가 있는 경우
-                transactionPage = coupleAccountTransactionRepository.findByAccountIdAndIsSafeAccountDepositTrueAndTransactionDateBetween(
-                        coupleAccount.getAccountId(), startDate, endDate, pageable);
-            } else {
-                // 날짜 범위가 없는 경우
-                transactionPage = coupleAccountTransactionRepository.findByAccountIdAndIsSafeAccountDepositTrueOrderByTransactionDateDescTransactionTimeDesc(
-                        coupleAccount.getAccountId(), pageable);
-            }
+            Page<com.marry1q.marry1qbe.domain.account.entity.CoupleAccountTransaction> transactionPage = 
+                coupleAccountTransactionRepository.findByAccountIdAndIsSafeAccountDepositTrueOrderByTransactionDateDescTransactionTimeDesc(
+                    coupleAccount.getAccountId(), pageable);
             
             log.info("안심계좌 입금 내역 조회 완료: 총 {}건, 현재 페이지 {}건", 
                     transactionPage.getTotalElements(), transactionPage.getNumberOfElements());

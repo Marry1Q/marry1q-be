@@ -286,6 +286,7 @@ public class AuthBackendApiService implements ExternalApiService {
         private String afterBalanceAmt;
         private String branchName;
         private String bankTranId;
+        private Boolean isSafeAccountDeposit;
         
         // 생성자, getter, setter
         public TransactionItem() {}
@@ -316,6 +317,9 @@ public class AuthBackendApiService implements ExternalApiService {
         
         public String getBankTranId() { return bankTranId; }
         public void setBankTranId(String bankTranId) { this.bankTranId = bankTranId; }
+        
+        public Boolean getIsSafeAccountDeposit() { return isSafeAccountDeposit; }
+        public void setIsSafeAccountDeposit(Boolean isSafeAccountDeposit) { this.isSafeAccountDeposit = isSafeAccountDeposit; }
     }
     
     /**
