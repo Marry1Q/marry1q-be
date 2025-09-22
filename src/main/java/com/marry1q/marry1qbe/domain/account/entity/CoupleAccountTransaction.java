@@ -73,7 +73,10 @@ public class CoupleAccountTransaction {
     
     @Column(name = "balance_after_transaction", precision = 18, scale = 0)
     private BigDecimal balanceAfterTransaction;
-    
+
+    @Column(name = "is_safe_account_deposit")
+    private Boolean isSafeAccountDeposit;
+
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id", insertable = false, updatable = false)

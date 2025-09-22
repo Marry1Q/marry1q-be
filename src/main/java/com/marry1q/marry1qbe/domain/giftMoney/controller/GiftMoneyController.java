@@ -5,6 +5,7 @@ import com.marry1q.marry1qbe.domain.giftMoney.dto.request.UpdateGiftMoneyRequest
 import com.marry1q.marry1qbe.domain.giftMoney.dto.request.UpdateThanksStatusRequest;
 import com.marry1q.marry1qbe.domain.giftMoney.dto.response.GiftMoneyListResponse;
 import com.marry1q.marry1qbe.domain.giftMoney.dto.response.GiftMoneyResponse;
+import com.marry1q.marry1qbe.domain.giftMoney.dto.response.SafeAccountTransactionListResponse;
 import com.marry1q.marry1qbe.domain.giftMoney.service.GiftMoneyService;
 import com.marry1q.marry1qbe.domain.couple.service.CoupleService;
 import com.marry1q.marry1qbe.grobal.dto.CustomApiResponse;
@@ -150,5 +151,24 @@ public class GiftMoneyController {
         giftMoneyService.deleteGiftMoney(giftMoneyId, coupleId);
         
         return ResponseEntity.ok(CustomApiResponse.success(null, "축의금이 성공적으로 삭제되었습니다."));
+    }
+    
+    @Operation(
+        summary = "안심계좌 입금 내역 조회",
+        description = "모임통장 거래내역을 동기화하고 안심계좌로 입금된 거래내역을 조회합니다."
+    )
+    @GetMapping("/safe-account-transactions")
+    public ResponseEntity<CustomApiResponse<SafeAccountTransactionListResponse>> getSafeAccountTransactions(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size) {
+        
+        String currentUserSeqNo = userDetails.getUsername();
+        Long coupleId = coupleService.getCurrentCoupleId();
+        
+        SafeAccountTransactionListResponse response = giftMoneyService.getSafeAccountTransactions(
+                coupleId, page, size);
+        
+        return ResponseEntity.ok(CustomApiResponse.success(response, "안심계좌 입금 내역 조회가 완료되었습니다."));
     }
 }

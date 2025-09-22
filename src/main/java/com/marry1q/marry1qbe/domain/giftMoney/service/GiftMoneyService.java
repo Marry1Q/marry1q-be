@@ -6,12 +6,17 @@ import com.marry1q.marry1qbe.domain.giftMoney.dto.request.UpdateThanksStatusRequ
 import com.marry1q.marry1qbe.domain.giftMoney.dto.response.GiftMoneyListResponse;
 import com.marry1q.marry1qbe.domain.giftMoney.dto.response.GiftMoneyResponse;
 import com.marry1q.marry1qbe.domain.giftMoney.dto.response.GiftMoneyStatisticsResponse;
+import com.marry1q.marry1qbe.domain.giftMoney.dto.response.SafeAccountTransactionListResponse;
 import com.marry1q.marry1qbe.domain.giftMoney.entity.GiftMoney;
 import com.marry1q.marry1qbe.domain.giftMoney.entity.GiftMoneyStats;
 import com.marry1q.marry1qbe.domain.giftMoney.exception.GiftMoneyNotFoundException;
 import com.marry1q.marry1qbe.domain.giftMoney.exception.GiftMoneyStatsNotFoundException;
 import com.marry1q.marry1qbe.domain.giftMoney.repository.GiftMoneyRepository;
 import com.marry1q.marry1qbe.domain.giftMoney.repository.GiftMoneyStatsRepository;
+import com.marry1q.marry1qbe.domain.account.service.AccountService;
+import com.marry1q.marry1qbe.domain.account.repository.CoupleAccountTransactionRepository;
+import com.marry1q.marry1qbe.domain.customer.service.CustomerService;
+import com.marry1q.marry1qbe.domain.account.entity.Account;
 import com.marry1q.marry1qbe.grobal.commonCode.ErrorCode;
 import com.marry1q.marry1qbe.grobal.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +40,9 @@ public class GiftMoneyService {
     
     private final GiftMoneyRepository giftMoneyRepository;
     private final GiftMoneyStatsRepository giftMoneyStatsRepository;
+    private final AccountService accountService;
+    private final CoupleAccountTransactionRepository coupleAccountTransactionRepository;
+    private final CustomerService customerService;
     
     /**
      * 축의금 목록 조회 (필터링 + 페이징)
@@ -281,6 +289,49 @@ public class GiftMoneyService {
                                 giftMoneyId, coupleId, e.getMessage(), e);
                         throw new CustomException(ErrorCode.GIFT_MONEY_DELETE_FAILED, "축의금 삭제에 실패했습니다.");
                     }
+    }
+    
+    /**
+     * 안심계좌 입금 내역 조회 (거래내역 동기화 포함)
+     */
+    @Transactional
+    public SafeAccountTransactionListResponse getSafeAccountTransactions(
+            Long coupleId,
+            int page,
+            int size) {
+        
+        try {
+            log.info("안심계좌 입금 내역 조회 시작: coupleId={}, page={}, size={}", 
+                    coupleId, page, size);
+            
+            // 1. 거래내역 동기화 (동기 처리)
+            accountService.syncTransactions();
+            log.info("거래내역 동기화 완료");
+            
+            // 2. 현재 사용자의 모임통장 조회
+            Account coupleAccount = customerService.getCurrentUserCoupleAccount();
+            log.info("모임통장 조회 완료: accountId={}, accountNumber={}", 
+                    coupleAccount.getAccountId(), coupleAccount.getAccountNumber());
+            
+            // 3. 안심계좌 입금 내역 조회 (페이징)
+            Pageable pageable = PageRequest.of(page, size);
+            Page<com.marry1q.marry1qbe.domain.account.entity.CoupleAccountTransaction> transactionPage = 
+                coupleAccountTransactionRepository.findByAccountIdAndIsSafeAccountDepositTrueOrderByTransactionDateDescTransactionTimeDesc(
+                    coupleAccount.getAccountId(), pageable);
+            
+            log.info("안심계좌 입금 내역 조회 완료: 총 {}건, 현재 페이지 {}건", 
+                    transactionPage.getTotalElements(), transactionPage.getNumberOfElements());
+            
+            // 4. DTO 변환
+            SafeAccountTransactionListResponse response = SafeAccountTransactionListResponse.from(transactionPage);
+            
+            log.info("안심계좌 입금 내역 조회 성공: coupleId={}", coupleId);
+            return response;
+            
+        } catch (Exception e) {
+            log.error("안심계좌 입금 내역 조회 중 오류 발생: coupleId={}, error={}", coupleId, e.getMessage(), e);
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "안심계좌 입금 내역 조회에 실패했습니다.");
+        }
     }
     
     

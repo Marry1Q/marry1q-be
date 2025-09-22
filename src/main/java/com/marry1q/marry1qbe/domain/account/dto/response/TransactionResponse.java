@@ -53,7 +53,10 @@ public class TransactionResponse {
     
     @Schema(description = "거래 후 잔액", example = "5450000")
     private BigDecimal balanceAfterTransaction;
-    
+
+    @Schema(description = "안심계좌 입금 여부", example = "true")
+    private Boolean isSafeAccountDeposit;
+
     @Data
     @Builder
     @NoArgsConstructor
@@ -89,6 +92,7 @@ public class TransactionResponse {
                 .category(categoryInfo)
                 .memo(entity.getMemo())
                 .balanceAfterTransaction(entity.getBalanceAfterTransaction())
+                .isSafeAccountDeposit(entity.getIsSafeAccountDeposit())
                 .build();
     }
     
@@ -115,6 +119,7 @@ public class TransactionResponse {
                 .category(categoryInfo)
                 .memo(entity.getMemo())
                 .balanceAfterTransaction(entity.getBalanceAfterTransaction())
+                .isSafeAccountDeposit(entity.getIsSafeAccountDeposit())
                 .build();
     }
 }
