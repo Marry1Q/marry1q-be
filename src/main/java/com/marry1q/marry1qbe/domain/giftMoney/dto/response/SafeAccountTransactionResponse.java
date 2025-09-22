@@ -1,6 +1,7 @@
 package com.marry1q.marry1qbe.domain.giftMoney.dto.response;
 
 import com.marry1q.marry1qbe.domain.account.entity.CoupleAccountTransaction;
+import com.marry1q.marry1qbe.grobal.commonCode.service.CommonCodeService;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -51,13 +52,16 @@ public class SafeAccountTransactionResponse {
     @Schema(description = "거래 후 잔액", example = "5000000")
     private BigDecimal balanceAfterTransaction;
     
-    @Schema(description = "안심계좌 입금 여부", example = "true")
-    private Boolean isSafeAccountDeposit;
+    @Schema(description = "안심계좌 입금 여부", example = "PENDING", allowableValues = {"PENDING", "REVIEWED"})
+    private String isSafeAccountDeposit;
+    
+    @Schema(description = "안심계좌 입금 상태명", example = "미리뷰")
+    private String isSafeAccountDepositName;
     
     /**
      * CoupleAccountTransaction 엔티티를 SafeAccountTransactionResponse로 변환
      */
-    public static SafeAccountTransactionResponse from(CoupleAccountTransaction entity) {
+    public static SafeAccountTransactionResponse from(CoupleAccountTransaction entity, CommonCodeService commonCodeService) {
         return SafeAccountTransactionResponse.builder()
                 .transactionId(entity.getAccountTransactionId())
                 .type(entity.getType().name().toLowerCase())
@@ -67,10 +71,11 @@ public class SafeAccountTransactionResponse {
                 .transactionTime(entity.getTransactionTime())
                 .fromName(entity.getFromName())
                 .toName(entity.getToName())
-                .reviewStatus(entity.getReviewStatus().name().toLowerCase())
+                .reviewStatus(entity.getReviewStatus().name())
                 .memo(entity.getMemo())
                 .balanceAfterTransaction(entity.getBalanceAfterTransaction())
                 .isSafeAccountDeposit(entity.getIsSafeAccountDeposit())
+                .isSafeAccountDepositName(commonCodeService.getSafeAccountDepositStatusName(entity.getIsSafeAccountDeposit()))
                 .build();
     }
 }

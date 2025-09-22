@@ -1,5 +1,6 @@
 package com.marry1q.marry1qbe.domain.giftMoney.dto.response;
 
+import com.marry1q.marry1qbe.grobal.commonCode.service.CommonCodeService;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -53,10 +54,10 @@ public class SafeAccountTransactionListResponse {
     /**
      * Page<CoupleAccountTransaction>을 SafeAccountTransactionListResponse로 변환
      */
-    public static SafeAccountTransactionListResponse from(Page<com.marry1q.marry1qbe.domain.account.entity.CoupleAccountTransaction> transactionPage) {
+    public static SafeAccountTransactionListResponse from(Page<com.marry1q.marry1qbe.domain.account.entity.CoupleAccountTransaction> transactionPage, CommonCodeService commonCodeService) {
         List<SafeAccountTransactionResponse> content = transactionPage.getContent()
                 .stream()
-                .map(SafeAccountTransactionResponse::from)
+                .map(entity -> SafeAccountTransactionResponse.from(entity, commonCodeService))
                 .toList();
         
         PageInfo pageInfo = PageInfo.builder()

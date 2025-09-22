@@ -3,6 +3,7 @@ package com.marry1q.marry1qbe.domain.giftMoney.service;
 import com.marry1q.marry1qbe.domain.giftMoney.dto.request.CreateGiftMoneyRequest;
 import com.marry1q.marry1qbe.domain.giftMoney.dto.request.UpdateGiftMoneyRequest;
 import com.marry1q.marry1qbe.domain.giftMoney.dto.request.UpdateThanksStatusRequest;
+import com.marry1q.marry1qbe.domain.giftMoney.dto.request.UpdateSafeAccountTransactionReviewStatusRequest;
 import com.marry1q.marry1qbe.domain.giftMoney.dto.response.GiftMoneyListResponse;
 import com.marry1q.marry1qbe.domain.giftMoney.dto.response.GiftMoneyResponse;
 import com.marry1q.marry1qbe.domain.giftMoney.dto.response.GiftMoneyStatisticsResponse;
@@ -17,6 +18,7 @@ import com.marry1q.marry1qbe.domain.account.service.AccountService;
 import com.marry1q.marry1qbe.domain.account.repository.CoupleAccountTransactionRepository;
 import com.marry1q.marry1qbe.domain.customer.service.CustomerService;
 import com.marry1q.marry1qbe.domain.account.entity.Account;
+import com.marry1q.marry1qbe.grobal.commonCode.service.CommonCodeService;
 import com.marry1q.marry1qbe.grobal.commonCode.ErrorCode;
 import com.marry1q.marry1qbe.grobal.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +45,7 @@ public class GiftMoneyService {
     private final AccountService accountService;
     private final CoupleAccountTransactionRepository coupleAccountTransactionRepository;
     private final CustomerService customerService;
+    private final CommonCodeService commonCodeService;
     
     /**
      * 축의금 목록 조회 (필터링 + 페이징)
@@ -313,17 +316,17 @@ public class GiftMoneyService {
             log.info("모임통장 조회 완료: accountId={}, accountNumber={}", 
                     coupleAccount.getAccountId(), coupleAccount.getAccountNumber());
             
-            // 3. 안심계좌 입금 내역 조회 (페이징)
+            // 3. 안심계좌 입금 내역 조회 (페이징) - PENDING 상태만 조회
             Pageable pageable = PageRequest.of(page, size);
             Page<com.marry1q.marry1qbe.domain.account.entity.CoupleAccountTransaction> transactionPage = 
-                coupleAccountTransactionRepository.findByAccountIdAndIsSafeAccountDepositTrueOrderByTransactionDateDescTransactionTimeDesc(
-                    coupleAccount.getAccountId(), pageable);
+                coupleAccountTransactionRepository.findByAccountIdAndIsSafeAccountDepositOrderByTransactionDateDescTransactionTimeDesc(
+                    coupleAccount.getAccountId(), "PENDING", pageable);
             
             log.info("안심계좌 입금 내역 조회 완료: 총 {}건, 현재 페이지 {}건", 
                     transactionPage.getTotalElements(), transactionPage.getNumberOfElements());
             
             // 4. DTO 변환
-            SafeAccountTransactionListResponse response = SafeAccountTransactionListResponse.from(transactionPage);
+            SafeAccountTransactionListResponse response = SafeAccountTransactionListResponse.from(transactionPage, commonCodeService);
             
             log.info("안심계좌 입금 내역 조회 성공: coupleId={}", coupleId);
             return response;
@@ -331,6 +334,58 @@ public class GiftMoneyService {
         } catch (Exception e) {
             log.error("안심계좌 입금 내역 조회 중 오류 발생: coupleId={}, error={}", coupleId, e.getMessage(), e);
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "안심계좌 입금 내역 조회에 실패했습니다.");
+        }
+    }
+    
+    /**
+     * 안심계좌 거래내역 리뷰 상태 변경
+     */
+    @Transactional
+    public void updateSafeAccountTransactionReviewStatus(
+            Long transactionId,
+            UpdateSafeAccountTransactionReviewStatusRequest request,
+            Long coupleId) {
+        
+        try {
+            log.info("안심계좌 거래내역 리뷰 상태 변경 시작: transactionId={}, reviewStatus={}, coupleId={}", 
+                    transactionId, request.getReviewStatus(), coupleId);
+            
+            // 1. 거래내역 조회 및 검증
+            com.marry1q.marry1qbe.domain.account.entity.CoupleAccountTransaction transaction = 
+                coupleAccountTransactionRepository.findById(transactionId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.ACCOUNT_NOT_FOUND, "거래내역을 찾을 수 없습니다."));
+            
+            // 2. 커플 계좌 소유권 검증
+            Account coupleAccount = customerService.getCurrentUserCoupleAccount();
+            if (!transaction.getAccountId().equals(coupleAccount.getAccountId())) {
+                throw new CustomException(ErrorCode.FORBIDDEN, "해당 거래내역에 대한 권한이 없습니다.");
+            }
+            
+            // 3. 안심계좌 입금 내역인지 확인
+            if (!"PENDING".equals(transaction.getIsSafeAccountDeposit())) {
+                throw new CustomException(ErrorCode.INVALID_REQUEST, "안심계좌 입금 내역이 아닙니다.");
+            }
+            
+            // 4. 리뷰 상태 변경
+            transaction.updateReviewStatus(request.getReviewStatus(), request.getMemo());
+            
+            // 5. 안심계좌 입금 상태를 REVIEWED로 변경
+            transaction.setIsSafeAccountDeposit("REVIEWED");
+            
+            // 5. 저장
+            coupleAccountTransactionRepository.save(transaction);
+            
+            log.info("안심계좌 거래내역 리뷰 상태 변경 완료: transactionId={}, reviewStatus={}", 
+                    transactionId, request.getReviewStatus());
+            
+        } catch (CustomException e) {
+            log.error("안심계좌 거래내역 리뷰 상태 변경 실패 (CustomException): transactionId={}, error={}", 
+                    transactionId, e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("안심계좌 거래내역 리뷰 상태 변경 중 오류 발생: transactionId={}, error={}", 
+                    transactionId, e.getMessage(), e);
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "안심계좌 거래내역 리뷰 상태 변경에 실패했습니다.");
         }
     }
     
