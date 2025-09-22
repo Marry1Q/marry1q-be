@@ -3,6 +3,7 @@ package com.marry1q.marry1qbe.domain.giftMoney.controller;
 import com.marry1q.marry1qbe.domain.giftMoney.dto.request.CreateGiftMoneyRequest;
 import com.marry1q.marry1qbe.domain.giftMoney.dto.request.UpdateGiftMoneyRequest;
 import com.marry1q.marry1qbe.domain.giftMoney.dto.request.UpdateThanksStatusRequest;
+import com.marry1q.marry1qbe.domain.giftMoney.dto.request.UpdateSafeAccountTransactionReviewStatusRequest;
 import com.marry1q.marry1qbe.domain.giftMoney.dto.response.GiftMoneyListResponse;
 import com.marry1q.marry1qbe.domain.giftMoney.dto.response.GiftMoneyResponse;
 import com.marry1q.marry1qbe.domain.giftMoney.dto.response.SafeAccountTransactionListResponse;
@@ -170,5 +171,23 @@ public class GiftMoneyController {
                 coupleId, page, size);
         
         return ResponseEntity.ok(CustomApiResponse.success(response, "안심계좌 입금 내역 조회가 완료되었습니다."));
+    }
+    
+    @Operation(
+        summary = "안심계좌 거래내역 리뷰 상태 변경",
+        description = "안심계좌 거래내역의 리뷰 상태를 변경합니다."
+    )
+    @PutMapping("/safe-account-transactions/{transactionId}/review-status")
+    public ResponseEntity<CustomApiResponse<Void>> updateSafeAccountTransactionReviewStatus(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Parameter(description = "거래내역 ID") @PathVariable Long transactionId,
+            @Valid @RequestBody UpdateSafeAccountTransactionReviewStatusRequest request) {
+        
+        String currentUserSeqNo = userDetails.getUsername();
+        Long coupleId = coupleService.getCurrentCoupleId();
+        
+        giftMoneyService.updateSafeAccountTransactionReviewStatus(transactionId, request, coupleId);
+        
+        return ResponseEntity.ok(CustomApiResponse.success(null, "안심계좌 거래내역 리뷰 상태가 성공적으로 변경되었습니다."));
     }
 }

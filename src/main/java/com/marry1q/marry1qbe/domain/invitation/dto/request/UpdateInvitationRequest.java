@@ -74,6 +74,9 @@ public class UpdateInvitationRequest {
     @Schema(description = "신부 계좌번호", example = "987-654-321098")
     private String brideAccount;
     
+    @Schema(description = "모임통장 정보", example = "하나 110-1735-123456789")
+    private String meetingAccountInfo;
+    
     @Schema(description = "메인 이미지 URL", example = "https://marry1q-bucket.s3.ap-northeast-2.amazonaws.com/invitations/1/main-image.jpg")
     private String mainImageUrl;
 }

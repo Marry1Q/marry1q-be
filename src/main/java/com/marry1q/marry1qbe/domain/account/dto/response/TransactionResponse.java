@@ -54,8 +54,8 @@ public class TransactionResponse {
     @Schema(description = "거래 후 잔액", example = "5450000")
     private BigDecimal balanceAfterTransaction;
 
-    @Schema(description = "안심계좌 입금 여부", example = "true")
-    private Boolean isSafeAccountDeposit;
+    @Schema(description = "안심계좌 입금 여부", example = "PENDING", allowableValues = {"PENDING", "REVIEWED"})
+    private String isSafeAccountDeposit;
 
     @Data
     @Builder

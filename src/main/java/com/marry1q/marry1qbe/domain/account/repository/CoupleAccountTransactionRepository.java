@@ -78,7 +78,13 @@ public interface CoupleAccountTransactionRepository extends JpaRepository<Couple
             @Param("lastSyncedAt") java.time.LocalDateTime lastSyncedAt);
     
     /**
-     * 안심계좌 입금 내역 조회 (페이징 지원)
+     * 안심계좌 입금 내역 조회 (페이징 지원) - String 타입
+     */
+    Page<CoupleAccountTransaction> findByAccountIdAndIsSafeAccountDepositOrderByTransactionDateDescTransactionTimeDesc(
+            Long accountId, String isSafeAccountDeposit, Pageable pageable);
+    
+    /**
+     * 안심계좌 입금 내역 조회 (페이징 지원) - Boolean 타입 (기존 호환성)
      */
     Page<CoupleAccountTransaction> findByAccountIdAndIsSafeAccountDepositTrueOrderByTransactionDateDescTransactionTimeDesc(
             Long accountId, Pageable pageable);
@@ -87,7 +93,7 @@ public interface CoupleAccountTransactionRepository extends JpaRepository<Couple
      * 안심계좌 입금 내역 조회 (날짜 범위 포함, 페이징 지원)
      */
     @Query("SELECT t FROM CoupleAccountTransaction t WHERE t.accountId = :accountId " +
-           "AND t.isSafeAccountDeposit = true " +
+           "AND t.isSafeAccountDeposit = 'PENDING' " +
            "AND (:startDate IS NULL OR t.transactionDate >= :startDate) " +
            "AND (:endDate IS NULL OR t.transactionDate <= :endDate) " +
            "ORDER BY t.transactionDate DESC, t.transactionTime DESC")

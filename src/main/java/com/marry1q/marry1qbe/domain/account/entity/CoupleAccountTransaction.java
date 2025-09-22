@@ -74,8 +74,8 @@ public class CoupleAccountTransaction {
     @Column(name = "balance_after_transaction", precision = 18, scale = 0)
     private BigDecimal balanceAfterTransaction;
 
-    @Column(name = "is_safe_account_deposit")
-    private Boolean isSafeAccountDeposit;
+    @Column(name = "is_safe_account_deposit", length = 20)
+    private String isSafeAccountDeposit;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
@@ -116,5 +116,22 @@ public class CoupleAccountTransaction {
         return this.transactionDate.equals(other.transactionDate) &&
                this.transactionTime.equals(other.transactionTime) &&
                this.amount.compareTo(other.amount) == 0;
+    }
+    
+    /**
+     * 리뷰 상태 변경
+     */
+    public void updateReviewStatus(String reviewStatus, String memo) {
+        this.reviewStatus = ReviewStatus.valueOf(reviewStatus.toUpperCase());
+        if (memo != null && !memo.trim().isEmpty()) {
+            this.memo = memo;
+        }
+    }
+    
+    /**
+     * 안심계좌 입금 상태 변경
+     */
+    public void setIsSafeAccountDeposit(String isSafeAccountDeposit) {
+        this.isSafeAccountDeposit = isSafeAccountDeposit;
     }
 }

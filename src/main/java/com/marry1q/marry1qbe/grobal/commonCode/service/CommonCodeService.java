@@ -188,6 +188,21 @@ public class CommonCodeService {
     }
     
     /**
+     * 안심계좌 입금 상태 코드 목록 조회
+     */
+    @Transactional(readOnly = true)
+    public List<CommonCode> getSafeAccountDepositStatuses() {
+        return getCodesByGroup("SAFE_ACCOUNT_DEPOSIT_STATUS");
+    }
+    
+    /**
+     * 안심계좌 입금 상태 코드명 조회
+     */
+    public String getSafeAccountDepositStatusName(String codeValue) {
+        return getCodeName("SAFE_ACCOUNT_DEPOSIT_STATUS", codeValue);
+    }
+    
+    /**
      * 투자성향 검사 질문 카테고리 코드명 조회
      */
     public String getInvestmentQuestionCategoryName(String codeValue) {
