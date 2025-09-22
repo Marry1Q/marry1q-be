@@ -155,10 +155,12 @@ public class Invitation {
         this.totalViews++;
     }
     
-    // 결혼일 이후 접근 가능 여부 확인
+    // 결혼일 이후 접근 가능 여부 확인 (주석처리 - wedding_date 만료 후 접속 차단 기능 비활성화)
+    /*
     public boolean isAccessibleAfterWedding() {
         return LocalDate.now().isBefore(weddingDate);
     }
+    */
     
     // 메인 이미지 URL 설정
     public void setMainImageUrl(String mainImageUrl) {

@@ -425,7 +425,7 @@ public class InvitationService {
                 request.getBrideMotherName(),
                 request.getBrideAccount(),
                 request.getMainImageUrl(),
-                invitation.getMeetingAccountInfo() // 기존 값 유지
+                request.getMeetingAccountInfo() // 요청에서 받은 값 사용
         );
         
         Invitation updatedInvitation = invitationRepository.save(invitation);
@@ -555,10 +555,12 @@ public class InvitationService {
             Invitation invitation = invitationRepository.findByCoupleIdAndIsRepresentativeTrue(couple.getCoupleId())
                     .orElseThrow(() -> new InvitationNotFoundException("청첩장이 존재하지 않습니다. 커플 ID: " + couple.getCoupleId()));
             
-            // 3. 결혼일 이후 접근 제한 확인
+            // 3. 결혼일 이후 접근 제한 확인 (주석처리 - wedding_date 만료 후 접속 차단 기능 비활성화)
+            /*
             if (!invitation.isAccessibleAfterWedding()) {
                 throw new InvitationAccessDeniedException("결혼식이 종료되었습니다. 결혼일: " + invitation.getWeddingDate());
             }
+            */
             
             // 4. 조회수 증가 (동기 처리)
             try {
